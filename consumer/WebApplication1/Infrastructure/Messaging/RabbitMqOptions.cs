@@ -1,4 +1,4 @@
-namespace WebApplication1.Options;
+namespace WebApplication1.Infrastructure.Messaging;
 
 public sealed class RabbitMqOptions
 {
