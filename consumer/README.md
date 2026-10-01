@@ -1,6 +1,6 @@
 # Consumidor de produtos com RabbitMQ
 
-API .NET 10 que consome produtos da fila `produtos.recebidos` e compara quantidade e valor unitário com um catálogo SQLite em memória. O SQLite cumpre neste projeto o mesmo papel que o H2 costuma cumprir em aplicações Java.
+API .NET 10 que consome compras da fila `produtos.recebidos` e compara o produto e o valor unitário com um catálogo SQLite. Inconsistências são publicadas na fila `produtos.avisos`.
 
 ## Executar
 
@@ -12,16 +12,18 @@ docker compose up --build
 
 Serviços disponíveis:
 
-- API e catálogo: http://localhost:8080/produtos
+- API: http://localhost:8080
 - RabbitMQ Management: http://localhost:15672 (`guest` / `guest`)
 
 O catálogo é recriado ao iniciar a aplicação:
 
-| Produto | Quantidade | Valor unitário |
-| --- | ---: | ---: |
-| Notebook | 10 | 3500,00 |
-| Mouse | 50 | 89,90 |
-| Teclado | 30 | 199,90 |
+| Produto | Valor unitário |
+| --- | ---: |
+| Monitor | 250,00 |
+| Teclado | 100,00 |
+| Mouse | 50,00 |
+| GoPro | 300,00 |
+| Fone | 150,00 |
 
 ## Publicar uma mensagem
 
@@ -29,9 +31,9 @@ Com os containers em execução, use o PowerShell:
 
 ```powershell
 $message = @{
-    nomeProduto = "Notebook"
-    quantidade = 10
-    valorUnitario = 3500.00
+    nomeProduto = "Mouse"
+    quantidade = 2
+    valorUnitario = 55.00
 } | ConvertTo-Json -Compress
 
 $body = @{
@@ -50,13 +52,13 @@ Invoke-RestMethod `
     -Body $body
 ```
 
-Veja o resultado da comparação nos logs:
+O exemplo informa um total de R$ 110,00, mas o catálogo espera R$ 100,00. Veja o aviso nos logs:
 
 ```powershell
 docker compose logs -f consumer
 ```
 
-Mensagens válidas são confirmadas manualmente. JSON inválido é descartado; falhas transitórias devolvem a mensagem à fila. Produtos desconhecidos geram um aviso e são confirmados.
+O mesmo aviso em JSON fica disponível na fila `produtos.avisos`, acessível pela interface do RabbitMQ. Produtos inexistentes também geram aviso. Mensagens válidas são confirmadas manualmente; JSON inválido é descartado e falhas transitórias devolvem a mensagem à fila.
 
 ## Configuração
 
