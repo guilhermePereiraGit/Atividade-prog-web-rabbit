@@ -1,20 +1,10 @@
-Services:
-  rabbitmq:
-    image: rabbitmq:4-management
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"   # Comunicação AMQP com o Spring
-      - "15672:15672" # Painel administrativo
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+FROM python:3.13-slim
 
-volumes:
-  rabbitmq_data:
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY send.py .
+
+CMD ["python", "send.py"]

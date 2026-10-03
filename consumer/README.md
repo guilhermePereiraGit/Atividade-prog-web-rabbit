@@ -12,8 +12,8 @@ docker compose up --build
 
 Serviços disponíveis:
 
-- API: http://localhost:8080
-- RabbitMQ Management: http://localhost:15672 (`guest` / `guest`)
+- API: http://localhost:8081
+- RabbitMQ Management: http://localhost:15672 (`admin` / `admin`)
 
 O catálogo é recriado ao iniciar a aplicação:
 
